@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Search Country Code</title>
+  <style type="text/css">
+    body{ font-family: sans-serif; }
+    .search-warp{ width: 350px; margin: 0 auto; position: relative}
+    .input{ width: 100%; background: #f1f1f1; border: 1px solid transparent; box-sizing: border-box; outline: none; padding: 10px; }
+    #countryListWrap{
+      max-height: 350px;
+      overflow-y: auto;
+      position: absolute;
+      border: 1px solid #d4d4d4;
+      border-bottom: none;
+      border-top: none;            
+      left: 0;
+      right: 0;
+      list-style: none; 
+      margin: 0; 
+      padding: 0; 
+    }
+    #countryListWrap li{ padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #d4d4d4; }
+    #countryListWrap li:hover{background: #d4d4d4}
+  </style>  
+</head>
+<body>
+  <div class="container">
+    <div class="search-warp">
+      <h1>Enter Country Code</h1>
+      <input id="countryCode" class="input" onkeyup="checkInputVal()" type="text">
+      <ul id="countryListWrap">
+        
+      </ul>
+      <div id="countryJson"></div>
+    </div>
+  </div>
+  <script>
+    
+    function getJsonData(searchKey) {
+      var request = new XMLHttpRequest(),
+          method = 'GET',
+          reqUrl = 'https://restcountries.eu/rest/v2/all';
+      request.open(method, reqUrl, true);
+      request.onload = function(response){
+        var data = JSON.parse(response.currentTarget.response);   
+        console.log(data[0]);        
+        let countryList = [];
+             
+        countryList = data.filter( (ele, i) => {
+          if(ele.name.indexOf(searchKey) > -1){
+            return ele.name;
+          }
+        })        
+        
+        let ul = document.getElementById('countryListWrap');        
+        let li = ul.querySelectorAll('li.list');        
+        let currArr = [];
+        for(let i =0; i<li.length; i++){
+          let childLi = ul.getElementsByTagName('li')[i];        
+          currArr.push(childLi.innerHTML);
+        }
+            
+        countryList.forEach((ele, i) => {
+          let list = document.createElement('li');
+          list.setAttribute("class", "list");
+          console.log(currArr);
+          if ( !(currArr.includes(ele.name)) ) {
+            document.getElementById('countryListWrap').appendChild(list).innerHTML = ele.name;          
+          }
+        });                
+      };
+      request.send();
+    }
+    
+    function checkInputVal() {
+      var getCountryCode = document.getElementById('countryCode').value.toUpperCase();
+      
+      let ul = document.getElementById('countryListWrap');      
+      let li = ul.querySelectorAll('li.list');      
+
+      for(let i =0; i<li.length; i++){
+        let childLi = ul.getElementsByTagName('li')[i];        
+        if(childLi.innerHTML.toUpperCase().indexOf(getCountryCode) > -1){
+          childLi.style.display = '';
+        } else {
+          childLi.style.display = 'none';          
+          childLi = '';             
+        }
+      }
+      
+      if(getCountryCode.length > 0) {
+        getJsonData(getCountryCode);     
+        
+        console.log("--", document.getElementsByClassName('list'));
+      }
+    }  
+  </script>
+</body>
+</html>
